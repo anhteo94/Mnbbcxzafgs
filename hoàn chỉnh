@@ -1,0 +1,944 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+repeat wait() until game:IsLoaded()
+
+local Window = Fluent:CreateWindow({
+    Title = "Phạm Nghĩa 🍏 ",
+    SubTitle = "Blox Fruit",
+    TabWidth = 157,
+    Size = UDim2.fromOffset(500, 300),
+    Acrylic = true,
+    Theme = "Amethyst",
+    MinimizeKey = Enum.KeyCode.End
+})
+
+local TabThongTin = Window:AddTab({ Title = "Thông Tin" })
+TabThongTin:AddButton({
+    Title = "TIKTOK",
+    Description = "kiet_caythue",
+    Callback = function()
+        setclipboard("https://www.tiktok.com/@kitnguyn4661?lang=vi-VN")
+    end
+})
+
+-- Thêm 11 tab mới
+local Tabs = {
+    "Chung",
+    "Cài Đặt",
+    "Vật Phẩm",
+    "Tộc V4",
+    "Sự Kiện",
+    "Người Chơi",
+    "Thị Giác",
+    "Tập Kích",
+    "Di Chuyển",
+    "Cửa Hàng",
+    "Trái Ác Quỷ"
+}
+for _, title in ipairs(Tabs) do
+    local tab = Window:AddTab({ Title = title })
+
+    if title == "Vật Phẩm" then
+        TabVatPham = tab
+elseif title == "Tộc V4" then
+    TabTocV4 = tab
+
+    TabTocV4:AddButton({
+        Title = "Mở Gương Thức Tỉnh",
+        Description = "Mở gương để kích hoạt thức tỉnh tộc V4",
+        Callback = function()
+            fireclickdetector(workspace:WaitForChild("AwakeningDoor").ClickDetector)
+        end
+    })
+
+    TabTocV4:AddButton({
+        Title = "Dịch Chuyển Vào Gương",
+        Description = "Tự động dịch chuyển vào gương (Awakening Room)",
+        Callback = function()
+            local ply = game.Players.LocalPlayer
+            ply.Character.HumanoidRootPart.CFrame = CFrame.new(-12556, 332, -7522) -- Thay đổi nếu cần
+        end
+    })
+
+    TabTocV4:AddButton({
+        Title = "Thức Tỉnh Tộc V4",
+        Description = "Tự động tương tác NPC để nâng cấp V4 (nếu đủ điều kiện)",
+        Callback = function()
+            local args = {
+                [1] = "StartDialogue",
+                [2] = {["NPC"] = "Red Head Mysterious Person", ["Option"] = "Yes"}
+            }
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+        end
+    })
+TabTocV4:AddButton({
+    Title = "Dịch Chuyển Đổi Gear",
+    Description = "Dịch chuyển đến NPC đổi gear V4",
+    Callback = function()
+        local ply = game.Players.LocalPlayer
+        ply.Character.HumanoidRootPart.CFrame = CFrame.new(-12570, 333, -7560)
+    end
+})
+TabTocV4:AddButton({
+    Title = "Mở Bảng Nhiệm Vụ Tộc V4",
+    Description = "Tự động mở bảng nhiệm vụ nếu có đủ điều kiện",
+    Callback = function()
+        local args = {
+            [1] = "GetRaceProgress",
+            [2] = {}
+        }
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+    end
+})
+TabTocV4:AddButton({
+    Title = "Dịch Chuyển Bàn Tế Tổ",
+    Description = "Dịch chuyển đến nơi thức tỉnh tộc V4",
+    Callback = function()
+        local ply = game.Players.LocalPlayer
+        ply.Character.HumanoidRootPart.CFrame = CFrame.new(-12556, 332, -7522)
+    end
+})
+TabTocV4:AddButton({
+    Title = "Kiểm Tra Điều Kiện V4",
+    Description = "Kiểm tra xem bạn có đủ điều kiện để thức tỉnh V4 không",
+    Callback = function()
+        local args = {
+            [1] = "CheckRaceV4Status"
+        }
+        local result = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+        print("Trạng thái V4:", result)
+    end
+})
+TabTocV4:AddButton({
+    Title = "Đến Đảo Cổ Temple",
+    Description = "Dịch chuyển đến đảo kích hoạt V4 (Temple Island)",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-12467, 340, -7557)
+    end
+})
+TabTocV4:AddToggle({
+    Title = "Auto Qua Ải V4",
+    Description = "Tự động vượt thử thách khi bước vào ải V4",
+    Default = false,
+    Callback = function(state)
+        _G.AutoQuaAiV4 = state
+        while _G.AutoQuaAiV4 and task.wait(1) do
+            pcall(function()
+                for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                        repeat
+                            task.wait()
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                            game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
+                            game:GetService("VirtualInputManager"):SendKeyEvent(false, "Z", false, game)
+                        until v.Humanoid.Health <= 0 or not _G.AutoQuaAiV4
+                    end
+                end
+            end)
+        end
+    end
+})
+TabTocV4:AddToggle({
+    Title = "Auto Kill Người Trong Ải V4",
+    Description = "Tự động tiêu diệt người chơi khác trong ải",
+    Default = false,
+    Callback = function(state)
+        _G.AutoKillNguoiV4 = state
+        while _G.AutoKillNguoiV4 and task.wait(1) do
+            pcall(function()
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local char = game.Players.LocalPlayer.Character
+                        char.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                        game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
+                        game:GetService("VirtualInputManager"):SendKeyEvent(false, "Z", false, game)
+                    end
+                end
+            end)
+        end
+    end
+})
+TabTocV4:AddButton({
+    Title = "Bay Lại Gạt Cần V4",
+    Description = "Dịch chuyển tới vị trí cần gạt để bắt đầu kích hoạt V4",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-12556, 332, -7522)
+        -- Vị trí cần gạt, tùy tộc mà có thể khác
+    end
+})
+TabTocV4:AddButton({
+    Title = "Bay Tới Cửa Tộc V4",
+    Description = "Dịch chuyển tới cổng Temple V4 (cửa tộc)",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-6425, 252, -13163)
+        -- Vị trí cửa tộc V4 (Temple Entrance)
+    end
+})
+TabTocV4:AddButton({
+    Title = "Tự Động Mua Gear 2",
+    Description = "Mua Gear 2 nếu đủ điều kiện",
+    Callback = function()
+        local args = {
+            [1] = "BuySuperhuman"
+        }
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+    end
+})
+TabTocV4:AddButton({
+    Title = "Tự Động Mua Gear 3",
+    Description = "Mua Gear 3 nếu có",
+    Callback = function()
+        local args = {
+            [1] = "BuyGearThird"
+        }
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+    end
+})      
+TabVatPham:AddButton({
+            Title = "Lấy Đồ Từ Backpack",
+            Description = "Di chuyển đồ từ balo vào nhân vật",
+            Callback = function()
+                for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                    if v:IsA("Tool") then
+                        v.Parent = game.Players.LocalPlayer.Character
+                    end
+                end
+            end
+        })
+    end
+end
+    TabVatPham:AddButton({
+        Title = "Xoá Tất Cả Tool",
+        Description = "Xoá hết các công cụ đang cầm",
+        Callback = function()
+            for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                v:Destroy()
+            end
+            for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                if v:IsA("Tool") then
+                    v:Destroy()
+                end
+            end
+        end
+    })
+TabVatPham:AddButton({
+    Title = "Trang Bị Tool Đầu Tiên",
+    Description = "Tự động trang bị tool đầu tiên trong balo",
+    Callback = function()
+        local tool = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+        if tool then
+            tool.Parent = game.Players.LocalPlayer.Character
+        end
+    end
+})
+TabVatPham:AddButton({
+    Title = "Cất Tool Vào Balo",
+    Description = "Đưa các công cụ trên tay về balo",
+    Callback = function()
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if v:IsA("Tool") then
+                v.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+    end
+})
+TabVatPham:AddButton({
+    Title = "Nạp Lại Tool Đầu Tiên",
+    Description = "Gỡ tool đang dùng và nạp lại cái đầu tiên trong balo",
+    Callback = function()
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if v:IsA("Tool") then
+                v.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+        wait(0.1)
+        local tool = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+        if tool then
+            tool.Parent = game.Players.LocalPlayer.Character
+        end
+    end
+})
+TabVatPham:AddButton({
+    Title = "Lưu Tên Tất Cả Tool",
+    Description = "In ra tất cả tên tool trong Backpack để debug",
+    Callback = function()
+        for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if v:IsA("Tool") then
+                print("Tên Tool:", v.Name)
+            end
+        end
+    end
+})
+TabVatPham:AddButton({
+    Title = "Tự Động Up Tộc Drace V1 → V3",
+    Description = "Tự động nâng cấp tộc Drace từ V1 lên V3",
+    Callback = function()
+        spawn(function()
+            local function CheckRace()
+                local args = {
+                    [1] = "CitizenSelect",
+                    [2] = "Drace"
+                }
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+            end
+
+            local function EvolveRace()
+                local args = {
+                    [1] = "EvolveRace"
+                }
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+            end
+
+            -- Tiến hành nâng cấp
+            CheckRace()
+            wait(1)
+            EvolveRace()
+        end)
+    end
+})
+TabVatPham:AddButton({
+    Title = "Auto Up Drace V1 → V3",
+    Description = "Tự động làm toàn bộ nhiệm vụ nâng tộc Drace",
+    Callback = function()
+        spawn(function()
+            local rep = game:GetService("ReplicatedStorage").Remotes
+            local plr = game.Players.LocalPlayer
+            local function tpTo(pos)
+                plr.Character.HumanoidRootPart.CFrame = pos
+                wait(1)
+            end
+
+            local function findNPC(name)
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Name:lower():find(name:lower()) then
+                        return v.HumanoidRootPart.CFrame
+                    end
+                end
+                return nil
+            end
+
+            local function talkToNPC(npcName)
+                local args = {
+                    [1] = "StartDialogue",
+                    [2] = {["NPC"] = npcName, ["Option"] = "Yes"}
+                }
+                rep.CommF_:InvokeServer(unpack(args))
+            end
+
+            -- Bắt đầu nâng từ V1 → V2
+            warn("Đang nâng từ Drace V1 lên V2...")
+            local toTime = findNPC("Temple") or findNPC("Ancient One") or findNPC("Trial")
+            if toTime then
+                tpTo(toTime)
+                talkToNPC("Ancient One")
+                wait(2)
+            end
+
+            -- Tiếp tục nâng lên V3 nếu đã V2
+            wait(1)
+            warn("Đang nâng từ Drace V2 lên V3...")
+
+            local function GetQuest()
+                local args = {
+                    [1] = "GetQuestProgress",
+                    [2] = plr
+                }
+                return rep.CommF_:InvokeServer(unpack(args))
+            end
+
+            local quest = GetQuest()
+           
+if quest and quest:find("Arowe") then
+                while wait(1) do
+                    local enemies = workspace.Enemies:GetChildren()
+                    for _, mob in pairs(enemies) do
+                        if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") then
+                            repeat
+                                plr.Character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                                game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
+                                wait(0.3)
+                            until mob.Humanoid.Health <= 0
+                        end
+                    end
+                    if not GetQuest():find("Arowe") then
+                        break
+                    end
+                end
+            else
+                rep.CommF_:InvokeServer("StartQuest", "Arowe")
+            end
+        end)
+    end
+})
+    TabVatPham:AddButton({
+        Title = "Hiện Tất Cả Tool",
+        Description = "Hiển thị danh sách Tool trong Backpack (debug)",
+        Callback = function()
+            for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                print(v.Name)
+            end
+        end
+    })Window:AddTab({ Title = title })
+    if title ==     TabCaiDat:AddToggle({
+        Title = "Tối Ưu FPS",
+        Description = "Giảm lag bằng cách xoá hiệu ứng",
+        Default = false,
+        Callback = function(state)
+            if state then
+                for _,v in pairs(game:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.Material = Enum.Material.SmoothPlastic
+                        v.Reflectance = 0
+                    elseif v:IsA("Decal") then
+                        v.Transparency = 1
+                    end
+                end
+                settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+            end
+        end
+    })
+
+    TabCaiDat:AddToggle({
+        Title = "Tự Động Rejoin Khi Mất Kết Nối",
+        Description = "Nếu disconnect sẽ tự vào lại game",
+        Default = false,
+        Callback = function(state)
+            getgenv().AutoReconnect = state
+            if state then
+                game:GetService("GuiService").ErrorMessageChanged:Connect(function()
+                    if getgenv().AutoReconnect then
+                        local TeleportService = game:GetService("TeleportService")
+                        TeleportService:Teleport(game.PlaceId, game.Players.LocalPlayer)
+                    end
+                end)
+            end
+        end
+    })
+
+    TabCaiDat:AddToggle({
+        Title = "Tắt Nhạc Nền",
+        Description = "Tắt nhạc background trong game",
+        Default = false,
+        Callback = function(state)
+            for _,s in pairs(game:GetService("SoundService"):GetDescendants()) do
+                if s:IsA("Sound") then
+                    s.Volume = state and 0 or 1
+                end
+            end
+        end
+    })
+
+    TabCaiDat:AddButton({
+        Title = "Xóa Mây & Bầu Trời",
+        Description = "Giúp giảm lag cực mạnh",
+        Callback = function()
+            local l = game:GetService("Lighting")
+            for _,v in pairs(l:GetChildren()) do
+                if v:IsA("Sky") or v:IsA("Atmosphere") or v:IsA("Clouds") then
+                    v:Destroy()
+                end
+            end
+        end
+    })"TabChung:AddToggle({
+    Title = "Auto Farm Level",
+    Description = "Tự động farm quái để lên cấp",
+    Default = false,
+    Callback = function(state)
+        getgenv().AutoFarmLevel = state
+        if state then
+            spawn(function()
+                while getgenv().AutoFarmLevel do
+                    pcall(function()
+                        local plr = game.Players.LocalPlayer
+                        local char = plr.Character
+                        if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+                        local closest, dist = nil, math.huge
+                        for _, mob in pairs(workspace.Enemies:GetChildren()) do
+                            if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                                local mag = (char.HumanoidRootPart.Position - mob.HumanoidRootPart.Position).Magnitude
+                                if mag < dist then
+                                    closest = mob
+                                    dist = mag
+                                end
+                            end
+                        end
+                        if closest then
+                            repeat
+                                task.wait()
+                                char.HumanoidRootPart.CFrame = closest.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                            until not closest or closest.Humanoid.Health <= 0 or not getgenv().AutoFarmLevel
+                        end
+                    end)
+                    wait(0.5)
+                end
+            end)
+        end
+    end
+})" then
+  TabChung:AddToggle({
+    Title = "Auto Boss",
+    Description = "Tự động farm boss gần nhất",
+    Default = false,
+    Callback = function(state)
+        getgenv().AutoBoss = state
+        if state then
+            spawn(function()
+                while getgenv().AutoBoss do
+                    pcall(function()
+                        for _, boss in pairs(workspace.Enemies:GetChildren()) do
+                            if boss.Name:find("Boss") and boss:FindFirstChild("HumanoidRootPart") and boss.Humanoid.Health > 0 then
+                                local char = game.Players.LocalPlayer.Character
+                                char.HumanoidRootPart.CFrame = boss.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
+                                wait(0.5)
+                            end
+                        end
+                    end)
+                    wait(1)
+                end
+            end)
+        end
+    end
+})
+    end
+end
+TabChung:AddToggle({
+    Title = "Auto Chest",
+    Description = "Tự động mở rương gần nhất",
+    Default = false,
+    Callback = function(state)
+        getgenv().AutoChest = state
+        if state then
+            spawn(function()
+                while getgenv().AutoChest do
+                    pcall(function()
+                        for _, chest in pairs(workspace:GetChildren()) do
+                            if chest:IsA("Model") and chest.Name:find("Chest") then
+                                local plr = game.Players.LocalPlayer
+                                local char = plr.Character
+                                if char and char:FindFirstChild("HumanoidRootPart") and chest:FindFirstChild("TouchInterest") then
+                                    firetouchinterest(char.HumanoidRootPart, chest, 0)
+                                    firetouchinterest(char.HumanoidRootPart, chest, 1)
+                                end
+                            end
+                        end
+                        wait(1)
+                    end)
+                end
+            end)
+        end
+    end
+})
+TabChung:AddToggle({
+    Title = "ESP Người Chơi",
+    Description = "Hiển thị vị trí người chơi khác",
+    Default = false,
+    Callback = function(state)
+        getgenv().ESPPlayer = state
+        if state then
+            spawn(function()
+                while getgenv().ESPPlayer do
+                    pcall(function()
+                        for _, v in pairs(game.Players:GetPlayers()) do
+                            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v ~= game.Players.LocalPlayer then
+                                local esp = Instance.new("BoxHandleAdornment", v.Character.HumanoidRootPart)
+                                esp.Size = Vector3.new(4, 6, 1)
+                                esp.Transparency = 0.5
+                                esp.Color3 = Color3.fromRGB(255, 0, 0)
+                                esp.AlwaysOnTop = true
+                                esp.Name = "ESP"
+                            end
+                        end
+                    end)
+                    wait(2)
+                end
+            end)
+        else
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("BoxHandleAdornment") and v.Name == "ESP" then
+                    v:Destroy()
+                end
+            end
+        end
+    end
+})
+
+TabChung:AddToggle({
+    Title = "Aimbot",
+    Description = "Tự động ngắm mục tiêu gần nhất",
+    Default = false,
+    Callback = function(state)
+        getgenv().AimbotEnabled = state
+        if state then
+            local Camera = workspace.CurrentCamera
+            game:GetService("RunService").RenderStepped:Connect(function()
+                if getgenv().AimbotEnabled then
+                    local target = nil
+                    local closestDistance = math.huge
+                    for _, v in pairs(game.Players:GetPlayers()) do
+                        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (v.Character.HumanoidRootPart.Position - Camera.CFrame.Position).Magnitude
+                            if distance < closestDistance then
+                                closestDistance = distance
+                                target = v
+                            end
+                        end
+                    end
+                    if target then
+                        Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
+                    end
+                end
+            end)
+        end
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Bật Haki",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoHaki = Value
+        while _G.AutoHaki do
+            pcall(function()
+                local vim = game:GetService("VirtualInputManager")
+                vim:SendKeyEvent(true, "H", false, game)
+            end)
+            wait(5)
+        end
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Bật Ken",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoKen = Value
+        while _G.AutoKen do
+            pcall(function()
+                local ken = game.Players.LocalPlayer.Character:FindFirstChild("ReplicatedKen")
+                if not ken then
+                    local vim = game:GetService("VirtualInputManager")
+                    vim:SendKeyEvent(true, "J", false, game)
+                end
+            end)
+            wait(3)
+        end
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Stats (Melee)",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoStats = Value
+        while _G.AutoStats do
+            pcall(function()
+                local args = {
+                    [1] = "AddPoint",
+                    [2] = "Melee",
+                    [3] = 1
+                }
+                game:GetService("ReplicatedStorage").Remotes.Comm:InvokeServer(unpack(args))
+            end)
+            wait(1)
+        end
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Skill Z X C",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoSkill = Value
+        spawn(function()
+            while _G.AutoSkill do
+                pcall(function()
+                    local vim = game:GetService("VirtualInputManager")
+                    for _, key in ipairs({"Z", "X", "C"}) do
+                        vim:SendKeyEvent(true, key, false, game)
+                        wait(0.5)
+                    end
+                end)
+                wait(1.5)
+            end
+        end)
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Thức Tỉnh Trái",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoAwaken = Value
+        spawn(function()
+            while _G.AutoAwaken do
+                pcall(function()
+                    local args = {[1] = "Awakener", [2] = "Awaken"}
+                    game:GetService("ReplicatedStorage").Remotes.Comm:InvokeServer(unpack(args))
+                end)
+                wait(5)
+            end
+        end)
+    end
+})
+TabChung:AddToggle({
+    Title = "Auto Farm Boss Gần",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoBoss = Value
+        while _G.AutoBoss do
+            pcall(function()
+                local bosses = workspace.Enemies:GetChildren()
+                local closest = nil
+                local minDist = math.huge
+                for _, boss in ipairs(bosses) do
+                    if boss:FindFirstChild("HumanoidRootPart") and boss.Humanoid.MaxHealth > 10000 then
+                        local dist = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - boss.HumanoidRootPart.Position).Magnitude
+                        if dist < minDist then
+                            minDist = dist
+                            closest = boss
+                        end
+                    end
+                end
+                if closest then
+                    repeat
+                        wait()
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = closest.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
+                        game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
+                    until not closest or closest.Humanoid.Health <= 0 or not _G.AutoBoss
+                end
+            end)
+            wait(1)
+        end
+    end
+})
+TabChung:AddButton({
+    Title = "Auto Cộng Tất Cả Vào Melee",
+    Description = "Tự cộng điểm chỉ số vào Melee mỗi lần lên level",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/FFjB5XrP"))()
+    end
+})
+TabChung:AddButton({
+    Title = "Auto Bật Buso Haki",
+    Description = "Tự động bật haki vũ trang mỗi lần vào game",
+    Callback = function()
+        getgenv().AutoBuso = true
+        while getgenv().AutoBuso and wait(1) do
+            pcall(function()
+                local h = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if h and not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(true, "J", false, game)
+                    wait(1)
+                end
+            end)
+        end
+    end
+})
+
+TabChung:AddButton({
+    Title = "Auto Bật Ken (Tránh đòn)",
+    Description = "Tự động bật haki quan sát (Ken)",
+    Callback = function()
+        getgenv().AutoKen = true
+        while getgenv().AutoKen and wait(1) do
+            pcall(function()
+                local plr = game.Players.LocalPlayer
+                if plr.Character:FindFirstChild("HumanoidRootPart") and plr.PlayerGui:FindFirstChild("ImageLabel") == nil then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(true, "E", false, game)
+                end
+            end)
+        end
+    end
+})
+TabChung:AddButton({
+    Title = "ESP Người Chơi",
+    Description = "Hiển thị vị trí toàn bộ người chơi trong server",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/RQyZ6pPp"))()
+    end
+})
+
+TabChung:AddButton({
+    Title = "ESP Rương",
+    Description = "Hiển thị vị trí các chest trên bản đồ",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/XKYVQNsQ"))()
+    end
+})
+TabChung:AddButton({
+    Title = "Aimbot Kỹ Năng",
+    Description = "Tự động khoá kỹ năng định hướng vào kẻ địch gần nhất",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/RunDTM/Aimbot-BF/main/AimBot.txt"))()
+    end
+})
+TabChung:AddButton({
+    Title = "Dịch Chuyển Đến NPC Gần Nhất",
+    Description = "Auto dịch chuyển đến mob gần nhất",
+    Callback = function()
+        getgenv().AutoTPMob = true
+        while getgenv().AutoTPMob and wait(1) do
+            pcall(function()
+                local plr = game.Players.LocalPlayer
+                local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                local closest, dist = nil, math.huge
+                for _, mob in pairs(workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                        local mag = (root.Position - mob.HumanoidRootPart.Position).Magnitude
+                        if mag < dist then
+                            closest = mob
+                            dist = mag
+                        end
+                    end
+                end
+                if closest then
+                    root.CFrame = closest.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
+                end
+            end)
+        end
+    end
+})
+TabChung:AddButton({
+    Title = "Auto Đánh Mob Gần Nhất",
+    Description = "Tự đánh liên tục kẻ địch gần",
+    Callback = function()
+        getgenv().AutoHit = true
+        while getgenv().AutoHit and wait(0.3) do
+            pcall(function()
+                game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
+            end)
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tắt Nhạc Nền",
+    Description = "Tắt toàn bộ âm nhạc trong game",
+    Default = false,
+    Callback = function(state)
+        if state then
+            for _, s in pairs(game:GetDescendants()) do
+                if s:IsA("Sound") and s.Name == "BGM" then
+                    s:Stop()
+                end
+            end
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tắt Bóng Đổ",
+    Description = "Tăng FPS bằng cách tắt bóng đổ",
+    Default = false,
+    Callback = function(state)
+        if state then
+            game:GetService("Lighting").GlobalShadows = false
+        else
+            game:GetService("Lighting").GlobalShadows = true
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Giảm Độ Sáng",
+    Description = "Hạ độ sáng để dễ nhìn và đỡ chói",
+    Default = false,
+    Callback = function(state)
+        if state then
+            game:GetService("Lighting").Brightness = 0
+        else
+            game:GetService("Lighting").Brightness = 2
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tắt Hiệu Ứng Khói",
+    Description = "Xóa smoke để đỡ lag",
+    Default = false,
+    Callback = function(state)
+        if state then
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("Smoke") or v:IsA("Fire") or v:IsA("ParticleEmitter") then
+                    v.Enabled = false
+                end
+            end
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tắt Rung Màn Hình",
+    Description = "Xóa hiệu ứng rung để không bị khó chịu",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local cam = game.Workspace.CurrentCamera
+            cam.CameraType = Enum.CameraType.Custom
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tắt Mưa / Hiệu Ứng Thời Tiết",
+    Description = "Giảm lag bằng cách xóa mưa và hiệu ứng thời tiết",
+    Default = false,
+    Callback = function(state)
+        if state then
+            for _, v in pairs(game.Workspace:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                    v:Destroy()
+                end
+            end
+        end
+    end
+})
+TabCaiDat:AddButton({
+    Title = "Siêu Tối Ưu Đồ Họa",
+    Description = "Tắt toàn bộ hiệu ứng và đồ họa để siêu mượt",
+    Callback = function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        for _, v in pairs(game:GetDescendants()) do
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then
+                v:Destroy()
+            elseif v:IsA("BasePart") then
+                v.Material = Enum.Material.SmoothPlastic
+                v.Reflectance = 0
+            elseif v:IsA("Decal") then
+                v.Transparency = 1
+            end
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Khóa FPS 60",
+    Description = "Giúp đỡ nóng máy, ổn định khung hình",
+    Default = false,
+    Callback = function(state)
+        if setfpscap then
+            if state then
+                setfpscap(60)
+            else
+                setfpscap(240)
+            end
+        end
+    end
+})
+TabCaiDat:AddToggle({
+    Title = "Tự Dọn Bộ Nhớ Mỗi 30s",
+    Description = "Giảm ping, clear connections rác",
+    Default = false,
+    Callback = function(state)
+        if state then
+            getgenv().ClearMemoryLoop = true
+            task.spawn(function()
+                while getgenv().ClearMemoryLoop do
+                    collectgarbage("collect")
+                    game:GetService("ContentProvider"):SetBaseUrl("about:blank")
+                    wait(30)
+                end
+            end)
+        else
+            getgenv().ClearMemoryLoop = false
+        end
+    end
+})
+TabCaiDat:AddButton({
+    Title = "Xoá Texture Map",
+    Description = "Giảm lag mạnh (không thể hoàn tác)",
+    Callback = function()
+        for _, v in pairs(game:GetDescendants()) do
+            if v:IsA("Texture") or v:IsA("Decal") then
+                v:Destroy()
+            end
+        end
+    end
+})
